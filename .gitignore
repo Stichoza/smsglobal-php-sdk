@@ -117,6 +117,14 @@ UpgradeLog*.XML
 
 
 ############
+## phpDesigner
+############
+
+# phpDesigner temporary files
+~*.htm
+
+
+############
 ## Windows
 ############
 

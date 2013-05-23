@@ -11,9 +11,10 @@
  */
 class SMSGlobal {
 
-	private $ticket;
-	private $soap;
-	private $wdsl = "http://www.smsglobal.com/mobileworks/soapserver.php?wdsl";
+	private $wsdl = "http://www.smsglobal.com/mobileworks/soapserver.php?wsdl";
+	
+	protected $ticket;
+	protected $soapClient;
 
 	/**
 	 * SMSGlobal::__construct()
@@ -25,9 +26,10 @@ class SMSGlobal {
 	 */
 	public function __construct($username, $password) {
 		try {
-			$this->soap = new SoapClient($this->wdsl);
+			$this->soapClient = new SoapClient($this->wsdl);
 		} catch (SoapFault $e) {
 			print ($e->getMessage());
+			echo "\n".libxml_get_last_error();
 		}
 		if (!empty($username) && !empty($password)) {
 			$this->ticket = $this->validateLogin($username, $password);
@@ -42,14 +44,24 @@ class SMSGlobal {
 	 * @return mixed
 	 * @access private
 	 */
-	private function sendRequest($method, $data) {
+	protected function sendRequest($method, $data) {
+		$method = 'api' . ucfirst($method);
 		try {
-			$response = $this->soap->$method($data);
+			$response = $this->soapClient->$method($data);
 		} catch (exception $e) {
 			print ($e->getMessage());
 			return null;
 		}
 		return $response;
+	}
+	
+	/**
+	 * SMSGlobal::getTicket()
+	 * 
+	 * @return mixed
+	 */
+	public function getTicket() {
+		return $this->ticket;
 	}
 
 	/**
@@ -75,8 +87,9 @@ class SMSGlobal {
 		} catch (Exeption $e) {
 			print ($e->getMessage());
 		}
-		$this->ticket = $response["ticket"];
+		$this->ticket = $response;
 	}
+	
 	public function renewTicket() {
 
 	}
@@ -95,7 +108,7 @@ class SMSGlobal {
 	public function getInterface() {
 
 	}
-	public function interface() {
+	public function interf() {
 
 	}
 	public function getUpdate() {
