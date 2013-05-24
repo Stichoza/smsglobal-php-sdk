@@ -89,7 +89,7 @@ class SMSGlobal {
     }
 
     /**
-     * Validate user login
+     * Validate a user by supplied username and password
      * 
      * @param string $u E-mail or username
      * @param string $p User's password
@@ -103,7 +103,8 @@ class SMSGlobal {
             return false;
         }
         try {
-            $response = $this->sendRequest("validateLogin", array("username" => $u, "password" => $p));
+            $response = $this->sendRequest("validateLogin", array("username" => $u,
+                    "password" => $p));
         }
         catch (exception $e) {
             return false;
@@ -113,13 +114,14 @@ class SMSGlobal {
     }
 
     /**
-     * Renew user access token (ticket)
+     * Renew a session ticket
      * 
      * @return boolean true if ticket renewed successfully
      */
     public function renewTicket() {
         try {
-            $response = $this->sendRequest("renewTicket", array("ticket" => $this->getTicket()));
+            $response = $this->sendRequest("renewTicket", array("ticket" => $this->
+                    getTicket()));
         }
         catch (exception $e) {
             return false;
@@ -127,10 +129,10 @@ class SMSGlobal {
         $this->ticket = $response["ticket"];
         return true;
     }
-    
-    
+
+
     /**
-     * SMSGlobal::logout()
+     * Logout from MobileWorks
      * 
      * @return boolean true if logged out succesfully
      */
@@ -183,12 +185,77 @@ class SMSGlobal {
     public function sendSmsToList() {
 
     }
+
+
+    /**
+     * Check balance
+     * 
+     * @return mixed Account balance
+     */
     public function balanceSms() {
-
+        try {
+            $response = $this->sendRequest("balanceSms", array("ticket" => $this->getTicket
+                    ()));
+        }
+        catch (exception $e) {
+            return false;
+        }
+        return $response["balance"];
     }
-    public function balanceCheck() {
 
+
+    /**
+     * Check credit based balance
+     * 
+     * This is a private method that is used by getCredit(),
+     * getRate() and getSMSBalance() public methods.
+     * Math: Credit = SMS_Count * Rate
+     * 
+     * @access private
+     * @param string $return data to return (credit|sms|rate)
+     * @param string $country Country ISO name (2 Chars)
+     * @return mixed SMS balance
+     */
+    private function balanceCheck($return, $country = "US") {
+        try {
+            $response = $this->sendRequest("balanceCheck", array("ticket" => $this->
+                    getTicket(), "iso_country" => $country));
+        }
+        catch (exception $e) {
+            return false;
+        }
+        return $response[$return];
     }
+
+    /**
+     * Credit based balance
+     * 
+     * @return mixed Credit based balance
+     */
+    public function getCredit() {
+        return $this->balanceCheck("credit");
+    }
+
+    /**
+     * Country based SMS rate
+     * 
+     * @param string $country Country ISO name (2 Chars)
+     * @return mixed Country based SMS rate 
+     */
+    public function getRate($country) {
+        return $this->balanceCheck("rate", $country);
+    }
+
+    /**
+     * Country based SMS balance
+     * 
+     * @param string $country Country ISO name (2 Chars)
+     * @return integer remaining SMS count
+     */
+    public function getSMSBalance($country) {
+        return $this->balanceCheck("sms", $country);
+    }
+
     public function getBuddyList() {
 
     }
