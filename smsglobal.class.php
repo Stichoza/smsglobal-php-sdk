@@ -82,6 +82,9 @@ class SMSGlobal {
             throw new Exception("Response error", $result["@attributes"]["err"]);
             return null;
         }
+        echo "--> ".$method."\n";
+        print_r($result);
+        echo "\n";
         return $result;
     }
 
@@ -109,8 +112,20 @@ class SMSGlobal {
         return true;
     }
 
+    /**
+     * SMSGlobal::renewTicket()
+     * 
+     * @return boolean true if ticket renewed successfully
+     */
     public function renewTicket() {
-
+        try {
+            $response = $this->sendRequest("renewTicket", array("ticket" => $this->getTicket()));
+        }
+        catch (exception $e) {
+            return false;
+        }
+        $this->ticket = $response["ticket"];
+        return true;
     }
     public function logout() {
 
