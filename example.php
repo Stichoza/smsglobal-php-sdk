@@ -3,8 +3,8 @@ require_once "smsglobal.class.php";
 
 header("content-type: text/plain");
 
-$sms = new SMSGlobal("stichoza@gmail.com", "1212");
+$sms = new SMSGlobal("stichoza", "smstpajg");
 
-echo "garedan: >> " . $sms->getTicket();
+print_r($sms->getTicket());
 
 exit();

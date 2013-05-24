@@ -38,7 +38,7 @@ class SMSGlobal {
             echo "\n" . libxml_get_last_error();
         }
         if (!empty($username) && !empty($password)) {
-            $this->ticket = $this->validateLogin($username, $password);
+            $this->validateLogin($username, $password);
         }
     }
 
@@ -46,19 +46,41 @@ class SMSGlobal {
      * Get access token (ticket) if authorised
      */
     public function getTicket() {
-        return ($this->ticket) ? $this->ticket : false;
+        return isset($this->ticket) ? $this->ticket : false;
+    }
+
+    /**
+     * SMSGlobal::handleException()
+     * 
+     * @param Exception $e
+     * @return void
+     */
+    private static function handleException($e) {
+        switch ($e->getCode()) {
+            case 0:
+                echo "This isn't an error, lol";
+                break;
+            case 401:
+                echo "Unauthorised access";
+                break;
+            case 500:
+                echo "Internal server error";
+                break;
+            default:
+                echo "Unidentified error";
+        }
+        echo " (errorCode: " . $e->getCode() . ")";
     }
 
     /**
      * Convert SOAP response to array
      * 
-     * @param mixed $result
-     * @return
+     * @param mixed $res
+     * @return array
      */
     private function getResponseArray($res) {
-    	return $res;
-    	//$array = simplexml_load_string($res);
-    	//return $array;
+        $array = simplexml_load_string($res);
+        return json_decode(json_encode((array )$array), 1);
     }
 
     /**
@@ -78,8 +100,12 @@ class SMSGlobal {
             print ("Error: " . $e->getMessage());
             return null;
         }
-        //return $this->getResponseArray($this->soapClient->__getLastResponse());
-        return $this->getResponseArray($response);
+        $result = $this->getResponseArray($response);
+        if (!empty($result["@attributes"]["err"])) {
+            throw new Exception("Response error", $result["@attributes"]["err"]);
+            return null;
+        }
+        return $result;
         //echo "response: " . $this->soapClient->__getLastResponse();
     }
 
@@ -97,10 +123,13 @@ class SMSGlobal {
             throw new Exception("Username and password not set.");
             return false;
         }
-        $response = $this->sendRequest("validateLogin", array("username" => $u, "password" => $p));
-        $this->ticket = $response;
-        echo "gadamowmeba: *".$this->ticket."*\n";
-        echo "gadamowmeba #".$this->getTicket()."#\n";
+        try {
+            $response = $this->sendRequest("validateLogin", array("username" => $u, "password" => $p));
+        }
+        catch (exception $e) {
+            self::handleException($e);
+        }
+        $this->ticket = $response["ticket"];
     }
 
     public function renewTicket() {
