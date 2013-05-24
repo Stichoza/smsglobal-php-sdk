@@ -65,7 +65,7 @@ class SMSGlobal {
      * 
      * @param string $method
      * @param array $data
-     * @return mixed
+     * @return mixed response array if successful, null if failed
      * @access private
      */
     protected function sendRequest($method, $data) {
@@ -82,7 +82,7 @@ class SMSGlobal {
             throw new Exception("Response error", $result["@attributes"]["err"]);
             return null;
         }
-        echo "--> ".$method."\n";
+        echo "--> " . $method . "\n";
         print_r($result);
         echo "\n";
         return $result;
@@ -93,7 +93,7 @@ class SMSGlobal {
      * 
      * @param string $u E-mail or username
      * @param string $p User's password
-     * @return boolean
+     * @return boolean true if logged in succesfully
      * @access public
      * @throws Exception when username or password is not passed
      */
@@ -113,7 +113,7 @@ class SMSGlobal {
     }
 
     /**
-     * SMSGlobal::renewTicket()
+     * Renew user access token (ticket)
      * 
      * @return boolean true if ticket renewed successfully
      */
@@ -127,8 +127,25 @@ class SMSGlobal {
         $this->ticket = $response["ticket"];
         return true;
     }
+    
+    
+    /**
+     * SMSGlobal::logout()
+     * 
+     * @return boolean true if logged out succesfully
+     */
     public function logout() {
-
+        try {
+            $response = $this->sendRequest("logout", array("ticket" => $this->getTicket()));
+        }
+        catch (exception $e) {
+            return false;
+        }
+        if ($response["logout"] == 1) {
+            $this->ticket = null;
+            return true;
+        }
+        return false;
     }
     public function getPreference() {
 
