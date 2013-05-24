@@ -1,7 +1,10 @@
 <?php
+require_once "smsglobal.class.php";
 
-require "smsglobal.class.php";
+header("content-type: text/plain");
 
-$sms = new SMSGlobal("smsglobal@stichoza.com", "123456");
+$sms = new SMSGlobal("stichoza@gmail.com", "1212");
 
-var_dump($sms->getTicket());
+echo "garedan: >> " . $sms->getTicket();
+
+exit();

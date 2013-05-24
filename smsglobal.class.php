@@ -11,202 +11,215 @@
  */
 class SMSGlobal {
 
-	private $wsdl = "http://www.smsglobal.com/mobileworks/soapserver.php?wsdl";
-	
-	protected $ticket;
-	protected $soapClient;
+    private $wsdl = "http://www.smsglobal.com/mobileworks/soapserver.php?wsdl";
+    private $options = array(
+        'trace' => 1,
+        'exceptions' => true,
+        'cache_wsdl' => WSDL_CACHE_NONE,
+        'features' => SOAP_SINGLE_ELEMENT_ARRAYS);
 
-	/**
-	 * SMSGlobal::__construct()
-	 * 
-	 * @param string $username E-mail or username (Optional)
-	 * @param string $password User's password (Optional)
-	 * @return void
-	 * @access public
-	 */
-	public function __construct($username, $password) {
-		try {
-			$this->soapClient = new SoapClient($this->wsdl);
-		} catch (SoapFault $e) {
-			print ($e->getMessage());
-			echo "\n".libxml_get_last_error();
-		}
-		if (!empty($username) && !empty($password)) {
-			$this->ticket = $this->validateLogin($username, $password);
-		}
-	}
+    protected $ticket;
+    protected $soapClient;
 
-	/**
-	 * SMSGlobal::sendRequest()
-	 * 
-	 * @param string $method
-	 * @param array $data
-	 * @return mixed
-	 * @access private
-	 */
-	protected function sendRequest($method, $data) {
-		$method = 'api' . ucfirst($method);
-		try {
-			$response = $this->soapClient->$method($data);
-		} catch (exception $e) {
-			print ($e->getMessage());
-			return null;
-		}
-		return $response;
-	}
-	
-	/**
-	 * SMSGlobal::getTicket()
-	 * 
-	 * @return mixed
-	 */
-	public function getTicket() {
-		return $this->ticket;
-	}
+    /**
+     * SMSGlobal::__construct()
+     * 
+     * @param string $username E-mail or username (Optional)
+     * @param string $password User's password (Optional)
+     * @return void
+     * @access public
+     */
+    public function __construct($username, $password) {
+        try {
+            $this->soapClient = new SoapClient($this->wsdl, $this->options);
+        }
+        catch (SoapFault $e) {
+            print ($e->getMessage());
+            echo "\n" . libxml_get_last_error();
+        }
+        if (!empty($username) && !empty($password)) {
+            $this->ticket = $this->validateLogin($username, $password);
+        }
+    }
 
-	/**
-	 * SMSGlobal::validateLogin()
-	 * 
-	 * @param string $u E-mail or username
-	 * @param string $p User's password
-	 * @return void
-	 * @access public
-	 * @throws Exception when username or password is not passed
-	 */
-	public function validateLogin($u, $p) {
-		if (empty($u) || empty($p))
-			throw new Exception("Username and password not set");
-		try {
-			$response = $this->sendRequest(
-				"validateLogin",
-				array(
-					"username" => $u,
-					"password" => $p
-				)
-			);
-		} catch (Exeption $e) {
-			print ($e->getMessage());
-		}
-		$this->ticket = $response;
-	}
-	
-	public function renewTicket() {
+    /**
+     * Get access token (ticket) if authorised
+     */
+    public function getTicket() {
+        return ($this->ticket) ? $this->ticket : false;
+    }
 
-	}
-	public function logout() {
+    /**
+     * Convert SOAP response to array
+     * 
+     * @param mixed $result
+     * @return
+     */
+    private function getResponseArray($res) {
+    	return $res;
+    	//$array = simplexml_load_string($res);
+    	//return $array;
+    }
 
-	}
-	public function getPreference() {
+    /**
+     * Send SOAP request
+     * 
+     * @param string $method
+     * @param array $data
+     * @return mixed
+     * @access private
+     */
+    protected function sendRequest($method, $data) {
+        $method = 'api' . ucfirst($method);
+        try {
+            $response = $this->soapClient->__soapCall($method, $data);
+        }
+        catch (exception $e) {
+            print ("Error: " . $e->getMessage());
+            return null;
+        }
+        //return $this->getResponseArray($this->soapClient->__getLastResponse());
+        return $this->getResponseArray($response);
+        //echo "response: " . $this->soapClient->__getLastResponse();
+    }
 
-	}
-	public function getPreferenceSender() {
+    /**
+     * SMSGlobal::validateLogin()
+     * 
+     * @param string $u E-mail or username
+     * @param string $p User's password
+     * @return void
+     * @access public
+     * @throws Exception when username or password is not passed
+     */
+    public function validateLogin($u, $p) {
+        if (empty($u) || empty($p)) {
+            throw new Exception("Username and password not set.");
+            return false;
+        }
+        $response = $this->sendRequest("validateLogin", array("username" => $u, "password" => $p));
+        $this->ticket = $response;
+        echo "gadamowmeba: *".$this->ticket."*\n";
+        echo "gadamowmeba #".$this->getTicket()."#\n";
+    }
 
-	}
-	public function setPreferenceSender() {
+    public function renewTicket() {
 
-	}
-	public function getInterface() {
+    }
+    public function logout() {
 
-	}
-	public function interf() {
+    }
+    public function getPreference() {
 
-	}
-	public function getUpdate() {
+    }
+    public function getPreferenceSender() {
 
-	}
-	public function sendSms() {
+    }
+    public function setPreferenceSender() {
 
-	}
-	public function twoWaySendLongSms() {
+    }
+    public function getInterface() {
 
-	}
-	public function twoWaySendSms() {
+    }
+    public function interf() {
 
-	}
-	public function sendLongSms() {
+    }
+    public function getUpdate() {
 
-	}
-	public function sendSmsToGroup() {
+    }
+    public function sendSms() {
 
-	}
-	public function sendSmsToList() {
+    }
+    public function twoWaySendLongSms() {
 
-	}
-	public function balanceSms() {
+    }
+    public function twoWaySendSms() {
 
-	}
-	public function balanceCheck() {
+    }
+    public function sendLongSms() {
 
-	}
-	public function getBuddyList() {
+    }
+    public function sendSmsToGroup() {
 
-	}
-	public function addBuddy() {
+    }
+    public function sendSmsToList() {
 
-	}
-	public function updateBuddy() {
+    }
+    public function balanceSms() {
 
-	}
-	public function moveBuddy() {
+    }
+    public function balanceCheck() {
 
-	}
-	public function copyBuddy() {
+    }
+    public function getBuddyList() {
 
-	}
-	public function removeBuddy() {
+    }
+    public function addBuddy() {
 
-	}
-	public function deleteBuddy() {
+    }
+    public function updateBuddy() {
 
-	}
-	public function addBuddyGroup() {
+    }
+    public function moveBuddy() {
 
-	}
-	public function updateBuddyGroup() {
+    }
+    public function copyBuddy() {
 
-	}
-	public function deleteBuddyGroup() {
+    }
+    public function removeBuddy() {
 
-	}
-	public function addBuddyBulkList() {
+    }
+    public function deleteBuddy() {
 
-	}
-	public function updateBuddyBulkList() {
+    }
+    public function addBuddyGroup() {
 
-	}
-	public function deleteBuddyBulkList() {
+    }
+    public function updateBuddyGroup() {
 
-	}
-	public function moveBuddyToList() {
+    }
+    public function deleteBuddyGroup() {
 
-	}
-	public function copyBuddyToList() {
+    }
+    public function addBuddyBulkList() {
 
-	}
-	public function removeBuddyFromList() {
+    }
+    public function updateBuddyBulkList() {
 
-	}
-	public function moveBuddyGroupToList() {
+    }
+    public function deleteBuddyBulkList() {
 
-	}
-	public function copyBuddyGroupToList() {
+    }
+    public function moveBuddyToList() {
 
-	}
-	public function removeBuddyGroupFromList() {
+    }
+    public function copyBuddyToList() {
 
-	}
-	public function moveListToList() {
+    }
+    public function removeBuddyFromList() {
 
-	}
-	public function copyListToList() {
+    }
+    public function moveBuddyGroupToList() {
 
-	}
-	public function removeListFromList() {
+    }
+    public function copyBuddyGroupToList() {
 
-	}
-	public function MTEmail() {
+    }
+    public function removeBuddyGroupFromList() {
 
-	}
+    }
+    public function moveListToList() {
+
+    }
+    public function copyListToList() {
+
+    }
+    public function removeListFromList() {
+
+    }
+    public function MTEmail() {
+
+    }
 }
 
 ?>
