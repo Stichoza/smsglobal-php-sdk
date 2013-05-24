@@ -110,11 +110,11 @@ class SMSGlobal {
     }
 
     /**
-     * SMSGlobal::validateLogin()
+     * Validate user login
      * 
      * @param string $u E-mail or username
      * @param string $p User's password
-     * @return void
+     * @return boolean
      * @access public
      * @throws Exception when username or password is not passed
      */
@@ -128,8 +128,10 @@ class SMSGlobal {
         }
         catch (exception $e) {
             self::handleException($e);
+            return false;
         }
         $this->ticket = $response["ticket"];
+        return true;
     }
 
     public function renewTicket() {
