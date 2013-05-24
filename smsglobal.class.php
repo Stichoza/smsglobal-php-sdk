@@ -50,29 +50,6 @@ class SMSGlobal {
     }
 
     /**
-     * SMSGlobal::handleException()
-     * 
-     * @param Exception $e
-     * @return void
-     */
-    private static function handleException($e) {
-        switch ($e->getCode()) {
-            case 0:
-                echo "This isn't an error, lol";
-                break;
-            case 401:
-                echo "Unauthorised access";
-                break;
-            case 500:
-                echo "Internal server error";
-                break;
-            default:
-                echo "Unidentified error";
-        }
-        echo " (errorCode: " . $e->getCode() . ")";
-    }
-
-    /**
      * Convert SOAP response to array
      * 
      * @param mixed $res
@@ -106,7 +83,6 @@ class SMSGlobal {
             return null;
         }
         return $result;
-        //echo "response: " . $this->soapClient->__getLastResponse();
     }
 
     /**
@@ -120,14 +96,13 @@ class SMSGlobal {
      */
     public function validateLogin($u, $p) {
         if (empty($u) || empty($p)) {
-            throw new Exception("Username and password not set.");
+            //throw new Exception("Username and password not set.");
             return false;
         }
         try {
             $response = $this->sendRequest("validateLogin", array("username" => $u, "password" => $p));
         }
         catch (exception $e) {
-            self::handleException($e);
             return false;
         }
         $this->ticket = $response["ticket"];
