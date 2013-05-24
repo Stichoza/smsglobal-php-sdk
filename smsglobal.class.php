@@ -167,9 +167,36 @@ class SMSGlobal {
     public function getUpdate() {
 
     }
-    public function sendSms() {
 
+    /**
+     * Send SMS to a number
+     * 
+     * @param mixed $from		Sender ID (Number or Alphanumeric)
+     * @param mixed $to			Sender number
+     * @param mixed $content	Message content
+     * @param mixed $type		Message type
+     * @param mixed $unicode	Unicode
+     * @param mixed $schedule	Schedule date/time
+     * @return
+     */
+    public function sendSms($from, $to, $content, $type, $unicode, $schedule) {
+        $params = array(
+            "ticket" => $this->getTicket(),
+            "sms_to" => $to,
+            "sms_from" => $from,
+            "msg_content" => $content,
+            "msg_type" => $type,
+            "unicode" => $unicode,
+            "schedule" => $schedule);
+        try {
+            $response = $this->sendRequest("sendSms", $params);
+        }
+        catch (exception $e) {
+            return false;
+        }
+        return true;
     }
+
     public function twoWaySendLongSms() {
 
     }
@@ -208,7 +235,7 @@ class SMSGlobal {
      * Check credit based balance
      * 
      * This is a private method that is used by getCredit(),
-     * getRate() and getSMSBalance() public methods.
+     * getRate() and getSmsBalance() public methods.
      * Math: Credit = SMS_Count * Rate
      * 
      * @access private
@@ -252,7 +279,7 @@ class SMSGlobal {
      * @param string $country Country ISO name (2 Chars)
      * @return integer remaining SMS count
      */
-    public function getSMSBalance($country) {
+    public function getSmsBalance($country) {
         return $this->balanceCheck("sms", $country);
     }
 
