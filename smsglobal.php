@@ -14,7 +14,6 @@ if (!function_exists('simplexml_load_string')) {
 
 try {
     require_once "smsglobal.exception.php";
-    require_once "smsglobal.abstract.php";
     require_once "smsglobal.class.php";
 }
 catch (Exception $e) {
