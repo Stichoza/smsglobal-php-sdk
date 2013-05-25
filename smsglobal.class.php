@@ -35,7 +35,9 @@ class SMSGlobal {
         }
         catch (SoapFault $e) {
             print ($e->getMessage());
-            echo "\n" . libxml_get_last_error();
+            if (function_exists('libxml_get_last_error')) {
+                echo "\n" . libxml_get_last_error();
+            }
         }
         if (!empty($username) && !empty($password)) {
             $this->validateLogin($username, $password);
@@ -66,6 +68,7 @@ class SMSGlobal {
      * @param string $method
      * @param array $data
      * @return mixed response array if successful, null if failed
+     * @throws SMSGlobalException on response Error
      * @access private
      */
     protected function sendRequest($method, $data) {
@@ -73,13 +76,13 @@ class SMSGlobal {
         try {
             $response = $this->soapClient->__soapCall($method, $data);
         }
-        catch (exception $e) {
+        catch (Exception $e) {
             print ("Error: " . $e->getMessage());
             return null;
         }
         $result = $this->getResponseArray($response);
         if (!empty($result["@attributes"]["err"])) {
-            throw new Exception("Response error", $result["@attributes"]["err"]);
+            throw new SMSGlobalException($result);
             return null;
         }
         echo "--> " . $method . "\n";
@@ -95,17 +98,15 @@ class SMSGlobal {
      * @param string $p User's password
      * @return boolean true if logged in succesfully
      * @access public
-     * @throws Exception when username or password is not passed
      */
     public function validateLogin($u, $p) {
         if (empty($u) || empty($p)) {
-            //throw new Exception("Username and password not set.");
             return false;
         }
         try {
             $response = $this->sendRequest("validateLogin", array("username" => $u, "password" => $p));
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         $this->ticket = $response["ticket"];
@@ -121,7 +122,7 @@ class SMSGlobal {
         try {
             $response = $this->sendRequest("renewTicket", array("ticket" => $this->getTicket()));
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         $this->ticket = $response["ticket"];
@@ -138,7 +139,7 @@ class SMSGlobal {
         try {
             $response = $this->sendRequest("logout", array("ticket" => $this->getTicket()));
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         if ($response["logout"] == 1) {
@@ -151,7 +152,7 @@ class SMSGlobal {
         try {
             $response = $this->sendRequest("getPreference", array("ticket" => $this->getTicket()));
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         return $response;
@@ -166,18 +167,18 @@ class SMSGlobal {
         try {
             $response = $this->sendRequest("getInterface", array("ticket" => $this->getTicket()));
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         return $response;
     }
-    
-    
+
+
     public function getUpdate() {
         try {
             $response = $this->sendRequest("getUpdate", array("ticket" => $this->getTicket()));
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         return $response;
@@ -187,17 +188,17 @@ class SMSGlobal {
      * Send SMS to a number
      * 
      * @param mixed $from		Sender ID (Number or Alphanumeric)
-     * @param mixed $to			Sender number
+     * @param mixed $to			MSIDSN of Recipient that the message will be going to
      * @param mixed $content	Message content
      * @param mixed $type		Message type
      * @param mixed $unicode	Unicode
      * @param mixed $schedule	Schedule date/time
      * @return
      */
-    public function sendSms($from, $to, $content, $type, $unicode, $schedule) {
+    public function sendSms($from, $to, $content, $type, $unicode = "0", $schedule = "0") {
         $params = array(
             "ticket" => $this->getTicket(),
-            "sms_to" => $to,
+            "sms_to" => preg_replace('/[^0-9]/', '', $to),
             "sms_from" => $from,
             "msg_content" => $content,
             "msg_type" => $type,
@@ -206,7 +207,7 @@ class SMSGlobal {
         try {
             $response = $this->sendRequest("sendSms", $params);
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         return true;
@@ -238,7 +239,7 @@ class SMSGlobal {
         try {
             $response = $this->sendRequest("balanceSms", array("ticket" => $this->getTicket()));
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         return $response["balance"];
@@ -262,7 +263,7 @@ class SMSGlobal {
             $response = $this->sendRequest("balanceCheck", array("ticket" => $this->getTicket(), "iso_country" =>
                     $country));
         }
-        catch (exception $e) {
+        catch (SMSGlobalException $e) {
             return false;
         }
         return $response[$return];
