@@ -103,8 +103,7 @@ class SMSGlobal {
             return false;
         }
         try {
-            $response = $this->sendRequest("validateLogin", array("username" => $u,
-                    "password" => $p));
+            $response = $this->sendRequest("validateLogin", array("username" => $u, "password" => $p));
         }
         catch (exception $e) {
             return false;
@@ -120,8 +119,7 @@ class SMSGlobal {
      */
     public function renewTicket() {
         try {
-            $response = $this->sendRequest("renewTicket", array("ticket" => $this->
-                    getTicket()));
+            $response = $this->sendRequest("renewTicket", array("ticket" => $this->getTicket()));
         }
         catch (exception $e) {
             return false;
@@ -150,7 +148,13 @@ class SMSGlobal {
         return false;
     }
     public function getPreference() {
-
+        try {
+            $response = $this->sendRequest("getPreference", array("ticket" => $this->getTicket()));
+        }
+        catch (exception $e) {
+            return false;
+        }
+        return $response;
     }
     public function getPreferenceSender() {
 
@@ -159,13 +163,24 @@ class SMSGlobal {
 
     }
     public function getInterface() {
-
+        try {
+            $response = $this->sendRequest("getInterface", array("ticket" => $this->getTicket()));
+        }
+        catch (exception $e) {
+            return false;
+        }
+        return $response;
     }
-    public function interf() {
-
-    }
+    
+    
     public function getUpdate() {
-
+        try {
+            $response = $this->sendRequest("getUpdate", array("ticket" => $this->getTicket()));
+        }
+        catch (exception $e) {
+            return false;
+        }
+        return $response;
     }
 
     /**
@@ -221,8 +236,7 @@ class SMSGlobal {
      */
     public function balanceSms() {
         try {
-            $response = $this->sendRequest("balanceSms", array("ticket" => $this->getTicket
-                    ()));
+            $response = $this->sendRequest("balanceSms", array("ticket" => $this->getTicket()));
         }
         catch (exception $e) {
             return false;
@@ -245,8 +259,8 @@ class SMSGlobal {
      */
     private function balanceCheck($return, $country = "US") {
         try {
-            $response = $this->sendRequest("balanceCheck", array("ticket" => $this->
-                    getTicket(), "iso_country" => $country));
+            $response = $this->sendRequest("balanceCheck", array("ticket" => $this->getTicket(), "iso_country" =>
+                    $country));
         }
         catch (exception $e) {
             return false;
