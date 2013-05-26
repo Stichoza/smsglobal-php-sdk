@@ -11,6 +11,7 @@
  */
 class SMSGlobal {
 
+    private $requestLog = array();
     private $wsdl = "http://www.smsglobal.com/mobileworks/soapserver.php?wsdl";
     private $options = array(
         'trace' => 1,
@@ -52,14 +53,24 @@ class SMSGlobal {
     }
 
     /**
+     * Get request log array
+     */
+    public function getRequestLog() {
+        return $this->requestLog;
+    }
+
+    /**
      * Convert SOAP response to array
      * 
      * @param mixed $res
      * @return array
      */
     private function getResponseArray($res) {
-        $array = simplexml_load_string($res);
-        return json_decode(json_encode((array )$array), 1);
+        $xmlObj = simplexml_load_string($res);
+        $array = json_decode(json_encode((array )$xmlObj), 1);
+        $array["_error"] = $array["@attributes"]["err"];
+        unset($array["@attributes"]);
+        return $array;
     }
 
     /**
@@ -81,13 +92,14 @@ class SMSGlobal {
             return null;
         }
         $result = $this->getResponseArray($response);
-        if (!empty($result["@attributes"]["err"])) {
+        if (!empty($result["_error"])) {
             throw new SMSGlobalException($result);
             return null;
         }
-        echo "--> " . $method . "\n";
-        print_r($result);
-        echo "\n";
+        $this->requestLog[] = array(
+            "time" => time() + microtime(),
+            "response" => $response,
+            "result" => $result);
         return $result;
     }
 
@@ -190,7 +202,7 @@ class SMSGlobal {
      * @param mixed $from		Sender ID (Number or Alphanumeric)
      * @param mixed $to			MSIDSN of Recipient that the message will be going to.
      * @param mixed $content	Message content.
-     * @param mixed $schedule	Schedule date/time. (Format: "yyyy‐mm‐dd hh:mm:ss")
+     * @param mixed $schedule	Schedule date/time. (Format: yyyy‐mm‐dd hh:mm:ss)
      * @return mixed false if sending failed, messageid if sent successfully
      */
     public function sendSms($from, $to, $content, $schedule = "0") {
@@ -262,7 +274,7 @@ class SMSGlobal {
                     $country));
         }
         catch (SMSGlobalException $e) {
-        	echo $e->getMessage();
+            echo $e->getMessage();
             return false;
         }
         return $response[$return];
