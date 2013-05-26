@@ -188,21 +188,19 @@ class SMSGlobal {
      * Send SMS to a number
      * 
      * @param mixed $from		Sender ID (Number or Alphanumeric)
-     * @param mixed $to			MSIDSN of Recipient that the message will be going to
-     * @param mixed $content	Message content
-     * @param mixed $schedule	Schedule date/time
-     * @param mixed $type		Message type
-     * @param mixed $unicode	Unicode
+     * @param mixed $to			MSIDSN of Recipient that the message will be going to.
+     * @param mixed $content	Message content.
+     * @param mixed $schedule	Schedule date/time. (Format: "yyyy‐mm‐dd hh:mm:ss")
      * @return mixed false if sending failed, messageid if sent successfully
      */
-    public function sendSms($from, $to, $content, $schedule = "0", $type = "text", $unicode = "0") {
+    public function sendSms($from, $to, $content, $schedule = "0") {
         $params = array(
             "ticket" => $this->getTicket(),
             "sms_to" => preg_replace('/[^0-9]/', '', $to),
             "sms_from" => $from,
             "msg_content" => $content,
-            "msg_type" => $type,
-            "unicode" => $unicode,
+            "msg_type" => "text",
+            "unicode" => "0",
             "schedule" => $schedule);
         try {
             $response = $this->sendRequest("sendSms", $params);
