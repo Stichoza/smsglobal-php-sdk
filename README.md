@@ -6,6 +6,7 @@ SMSGlobal.com PHP SDK for SOAP-API
 ## Usage
 
 	<?php
+	
 	// Require SMSGlobal SDK and catch exceptions
 	try {
 		require_once "smsglobal.php";
@@ -25,11 +26,9 @@ SMSGlobal.com PHP SDK for SOAP-API
 	// Send SMS
 	$smsID = $sms->sendSms("MyCompanyName", "1888123456", "Hello World!");
 	
-	if ($smsID) {
-		echo "Message ID is: " . $smsID;
-	} else {
-		echo "Message sending failed :(";
-	}
+	echo ($smsID) ? "Message sent. Message ID is: " . $smsID : "Message sending failed :(";
+	
+	?>
 
 ## Contributing
 
