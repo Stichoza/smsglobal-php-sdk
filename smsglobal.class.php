@@ -190,12 +190,12 @@ class SMSGlobal {
      * @param mixed $from		Sender ID (Number or Alphanumeric)
      * @param mixed $to			MSIDSN of Recipient that the message will be going to
      * @param mixed $content	Message content
+     * @param mixed $schedule	Schedule date/time
      * @param mixed $type		Message type
      * @param mixed $unicode	Unicode
-     * @param mixed $schedule	Schedule date/time
-     * @return
+     * @return mixed false if sending failed, messageid if sent successfully
      */
-    public function sendSms($from, $to, $content, $type, $unicode = "0", $schedule = "0") {
+    public function sendSms($from, $to, $content, $schedule = "0", $type = "text", $unicode = "0") {
         $params = array(
             "ticket" => $this->getTicket(),
             "sms_to" => preg_replace('/[^0-9]/', '', $to),
@@ -210,7 +210,7 @@ class SMSGlobal {
         catch (SMSGlobalException $e) {
             return false;
         }
-        return true;
+        return $response["msgid"];
     }
 
     public function twoWaySendLongSms() {
@@ -264,6 +264,7 @@ class SMSGlobal {
                     $country));
         }
         catch (SMSGlobalException $e) {
+        	echo $e->getMessage();
             return false;
         }
         return $response[$return];
