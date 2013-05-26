@@ -196,8 +196,8 @@ class SMSGlobal {
     public function sendSms($from, $to, $content, $schedule = "0") {
         $params = array(
             "ticket" => $this->getTicket(),
-            "sms_to" => preg_replace('/[^0-9]/', '', $to),
             "sms_from" => $from,
+            "sms_to" => preg_replace('/[^0-9]/', '', $to),
             "msg_content" => $content,
             "msg_type" => "text",
             "unicode" => "0",
@@ -208,7 +208,7 @@ class SMSGlobal {
         catch (SMSGlobalException $e) {
             return false;
         }
-        return $response["msgid"];
+        return $response["res"]["msgid"];
     }
 
     public function twoWaySendLongSms() {
