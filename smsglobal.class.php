@@ -54,9 +54,6 @@ class SMSGlobal {
         }
         catch (SoapFault $e) {
             print ($e->getMessage());
-            if (function_exists('libxml_get_last_error')) {
-                echo "\n" . libxml_get_last_error();
-            }
         }
         if (!empty($username) && !empty($password)) {
             $this->validateLogin($username, $password);
@@ -227,11 +224,11 @@ class SMSGlobal {
     /**
      * Send SMS to a number
      * 
-     * @param mixed $from		Sender ID (Number or Alphanumeric)
-     * @param mixed $to			MSIDSN of Recipient that the message will be going to.
-     * @param mixed $content	Message content.
-     * @param mixed $schedule	Schedule date/time. (Format: yyyy‐mm‐dd hh:mm:ss)
-     * @return mixed false if sending failed, messageid if sent successfully
+     * @param mixed $from Sender ID (Number or Alphanumeric)
+     * @param mixed $to MSIDSN of Recipient that the message will be going to.
+     * @param mixed $content Message content.
+     * @param mixed $schedule Schedule date/time. (Format: yyyy‐mm‐dd hh:mm:ss)
+     * @return mixed false if sending failed, MessageID if sent successfully
      */
     public function sendSms($from, $to, $content, $schedule = "0") {
         // $params array must be sorted strictly
@@ -333,7 +330,22 @@ class SMSGlobal {
         catch (SMSGlobalException $e) {
             return false;
         }
-        return $response;
+        return $response["preference"];
+    }
+
+    /**
+     * Get preference sender from MobileWorks
+     * 
+     * @return array
+     */
+    public function getPreferenceSender() {
+        try {
+            $response = $this->sendRequest("getPreferenceSender", array("ticket" => $this->getTicket()));
+        }
+        catch (SMSGlobalException $e) {
+            return false;
+        }
+        return $response["sender"];
     }
 
 }
