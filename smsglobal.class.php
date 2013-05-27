@@ -48,13 +48,15 @@ class SMSGlobal {
      * @return void
      * @access public
      */
-    public function __construct($username, $password) {
+    public function __construct($username = null, $password = null) {
+        // Retreive WSDL
         try {
             $this->soapClient = new SoapClient($this->wsdl, $this->options);
         }
         catch (SoapFault $e) {
             print ($e->getMessage());
         }
+
         if (!empty($username) && !empty($password)) {
             $this->validateLogin($username, $password);
         }
@@ -67,6 +69,15 @@ class SMSGlobal {
      */
     public function getTicket() {
         return isset($this->ticket) ? $this->ticket : false;
+    }
+
+    /**
+     * Set access token (ticket)
+     * 
+     * @param string $ticket Ticket (API Access Token)
+     */
+    public function setTicket($ticket) {
+        $this->ticket = $ticket;
     }
 
     /**
