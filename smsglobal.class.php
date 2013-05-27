@@ -11,19 +11,37 @@
  */
 class SMSGlobal {
 
-    private $requestLog = array();
+    /**
+     * Logging array
+     */
+    private $log = array();
+
+    /**
+     * WSDL URL
+     */
     private $wsdl = "http://www.smsglobal.com/mobileworks/soapserver.php?wsdl";
+
+    /**
+     * SoapClient object options
+     */
     private $options = array(
         'trace' => 1,
         'exceptions' => true,
         'cache_wsdl' => WSDL_CACHE_NONE,
         'features' => SOAP_SINGLE_ELEMENT_ARRAYS);
 
+    /**
+     * Service access token, a.k.a ticket
+     */
     protected $ticket;
+
+    /**
+     * Main SoapClient Object
+     */
     protected $soapClient;
 
     /**
-     * SMSGlobal::__construct()
+     * Class constructor
      * 
      * @param string $username E-mail or username (Optional)
      * @param string $password User's password (Optional)
@@ -47,6 +65,8 @@ class SMSGlobal {
 
     /**
      * Get access token (ticket) if authorised
+     * 
+     * @return string Ticket
      */
     public function getTicket() {
         return isset($this->ticket) ? $this->ticket : false;
@@ -55,8 +75,8 @@ class SMSGlobal {
     /**
      * Get request log array
      */
-    public function getRequestLog() {
-        return $this->requestLog;
+    public function getLog() {
+        return $this->log;
     }
 
     /**
@@ -83,23 +103,37 @@ class SMSGlobal {
      * @access private
      */
     protected function sendRequest($method, $data) {
-        $method = 'api' . ucfirst($method);
+        // Generate method name
+        $methodApi = 'api' . ucfirst($method);
+
+        // Call method
         try {
-            $response = $this->soapClient->__soapCall($method, $data);
+            $response = $this->soapClient->__soapCall($methodApi, $data);
         }
         catch (Exception $e) {
             print ("Error: " . $e->getMessage());
             return null;
         }
+
+        // Convert response to an associative array
         $result = $this->getResponseArray($response);
+
+        // Log request/response
+        $this->log[] = array(
+            "method" => $method,
+            "soap_call" => $methodApi,
+            "data" => $data,
+            "time" => time() + microtime(),
+            "response" => $response,
+            "result" => $result);
+
+        // Check for errors
         if (!empty($result["_error"])) {
             throw new SMSGlobalException($result);
             return null;
         }
-        $this->requestLog[] = array(
-            "time" => time() + microtime(),
-            "response" => $response,
-            "result" => $result);
+
+        // Return final result
         return $result;
     }
 
@@ -141,7 +175,6 @@ class SMSGlobal {
         return true;
     }
 
-
     /**
      * Logout from MobileWorks
      * 
@@ -160,21 +193,12 @@ class SMSGlobal {
         }
         return false;
     }
-    public function getPreference() {
-        try {
-            $response = $this->sendRequest("getPreference", array("ticket" => $this->getTicket()));
-        }
-        catch (SMSGlobalException $e) {
-            return false;
-        }
-        return $response;
-    }
-    public function getPreferenceSender() {
 
-    }
-    public function setPreferenceSender() {
-
-    }
+    /**
+     * Get set of interface used by MobileWorks GUI client software
+     * 
+     * @return Get array Set of interface used by MobileWorks GUI client software
+     */
     public function getInterface() {
         try {
             $response = $this->sendRequest("getInterface", array("ticket" => $this->getTicket()));
@@ -185,7 +209,11 @@ class SMSGlobal {
         return $response;
     }
 
-
+    /**
+     * Get update, returns set of updated values
+     * 
+     * @return array Set of updated values
+     */
     public function getUpdate() {
         try {
             $response = $this->sendRequest("getUpdate", array("ticket" => $this->getTicket()));
@@ -206,6 +234,7 @@ class SMSGlobal {
      * @return mixed false if sending failed, messageid if sent successfully
      */
     public function sendSms($from, $to, $content, $schedule = "0") {
+        // $params array must be sorted strictly
         $params = array(
             "ticket" => $this->getTicket(),
             "sms_from" => $from,
@@ -238,23 +267,6 @@ class SMSGlobal {
     public function sendSmsToList() {
 
     }
-
-
-    /**
-     * Check balance
-     * 
-     * @return mixed Account balance
-     */
-    public function balanceSms() {
-        try {
-            $response = $this->sendRequest("balanceSms", array("ticket" => $this->getTicket()));
-        }
-        catch (SMSGlobalException $e) {
-            return false;
-        }
-        return $response["balance"];
-    }
-
 
     /**
      * Check credit based balance
@@ -309,75 +321,21 @@ class SMSGlobal {
         return $this->balanceCheck("sms", $country);
     }
 
-    public function getBuddyList() {
-
+    /**
+     * Get preferences from MobileWorks
+     * 
+     * @return array
+     */
+    public function getPreference() {
+        try {
+            $response = $this->sendRequest("getPreference", array("ticket" => $this->getTicket()));
+        }
+        catch (SMSGlobalException $e) {
+            return false;
+        }
+        return $response;
     }
-    public function addBuddy() {
 
-    }
-    public function updateBuddy() {
-
-    }
-    public function moveBuddy() {
-
-    }
-    public function copyBuddy() {
-
-    }
-    public function removeBuddy() {
-
-    }
-    public function deleteBuddy() {
-
-    }
-    public function addBuddyGroup() {
-
-    }
-    public function updateBuddyGroup() {
-
-    }
-    public function deleteBuddyGroup() {
-
-    }
-    public function addBuddyBulkList() {
-
-    }
-    public function updateBuddyBulkList() {
-
-    }
-    public function deleteBuddyBulkList() {
-
-    }
-    public function moveBuddyToList() {
-
-    }
-    public function copyBuddyToList() {
-
-    }
-    public function removeBuddyFromList() {
-
-    }
-    public function moveBuddyGroupToList() {
-
-    }
-    public function copyBuddyGroupToList() {
-
-    }
-    public function removeBuddyGroupFromList() {
-
-    }
-    public function moveListToList() {
-
-    }
-    public function copyListToList() {
-
-    }
-    public function removeListFromList() {
-
-    }
-    public function MTEmail() {
-
-    }
 }
 
 ?>

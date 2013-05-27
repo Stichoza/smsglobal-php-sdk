@@ -10,7 +10,7 @@ class SMSGlobalException extends Exception {
     /**
      * Predefined array of SMSGlobal API errors
      */
-    private static $httpErrorCodes = array(
+    private static $httpStatusCodes = array(
         0 => 'Lol, this is not an error',
         100 => 'Continue',
         101 => 'Switching Protocols',
@@ -79,8 +79,14 @@ class SMSGlobalException extends Exception {
         parent::__construct(self::parseException($code), $code);
     }
 
+    /**
+     * Get error message based on status code
+     * 
+     * @param integer $code Status code
+     * @return string Translated message
+     */
     private static function parseException($code) {
-        return self::$httpErrorCodes[$code];
+        return self::$httpStatusCodes[$code];
     }
 
 }

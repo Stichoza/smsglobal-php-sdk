@@ -12,12 +12,7 @@ if (!function_exists('simplexml_load_string')) {
     throw new Exception('SMSGlobal needs the SimpleXML PHP extension.');
 }
 
-try {
-    require_once "smsglobal.exception.php";
-    require_once "smsglobal.class.php";
-}
-catch (Exception $e) {
-    echo $e->getMessage();
-}
+require_once "smsglobal.exception.php";
+require_once "smsglobal.class.php";
 
 ?>
