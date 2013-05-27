@@ -49,13 +49,19 @@ $smsID = $sms->sendSms("YourCompanyName", "1888123456", "Hello World!");
 ```php
 $myCredit = $sms->getCredit();
 $smsBalance = $sms->getSmsBalance("US");
-
+$sms->renewTicket();
 ```
 
 #### Logout (expire ticket)
 
 ```php
 $myCredit = $sms->logout();
+```
+
+#### Log/Debug (information about all requests and responses)
+
+```php
+print_r($sms->getLog());
 ```
 
 ## Contributing
