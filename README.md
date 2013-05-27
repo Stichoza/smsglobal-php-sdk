@@ -5,7 +5,8 @@ SMSGlobal.com PHP SDK for SOAP-API
 
 ## Usage
 
-```<?php
+```php
+<?php
 
 // Require SMSGlobal SDK and catch exceptions
 try {
@@ -28,7 +29,8 @@ $smsID = $sms->sendSms("MyCompanyName", "1888123456", "Hello World!");
 
 echo ($smsID) ? "Message sent. Message ID is: " . $smsID : "Message sending failed :(";
 
-?>```
+?>
+```
 
 ## Contributing
 
