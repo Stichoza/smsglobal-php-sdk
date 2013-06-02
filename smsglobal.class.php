@@ -13,16 +13,19 @@ class SMSGlobal {
 
     /**
      * Logging array
+     * @var array
      */
     private $log = array();
 
     /**
      * WSDL URL
+     * @var string
      */
     private $wsdl = "http://www.smsglobal.com/mobileworks/soapserver.php?wsdl";
 
     /**
      * SoapClient object options
+     * @var array
      */
     private $options = array(
         'trace' => 1,
@@ -32,11 +35,13 @@ class SMSGlobal {
 
     /**
      * Service access token, a.k.a ticket
+     * @var string
      */
     protected $ticket;
 
     /**
      * Main SoapClient Object
+     * @var SoapClient
      */
     protected $soapClient;
 

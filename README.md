@@ -13,7 +13,11 @@ SMSGlobal.com PHP SDK for SOAP-API
 #### Require SMSGlobal SDK
 
 ```php
-require_once "smsglobal.php";
+try {
+    require_once "smsglobal.php";
+} catch (Exception $e) {
+	$e->getMessage();
+}
 ```
 
 #### Create SMSGlobal object and authenticate
